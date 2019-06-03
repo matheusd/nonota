@@ -16,6 +16,7 @@ type NonotaUI struct {
 	board    *nonota.Board
 	user     *nonota.User
 	app      *tview.Application
+	refTime  time.Time
 	filename string
 
 	tree        *tview.TreeView
@@ -32,7 +33,7 @@ type NonotaUI struct {
 	treeNodes    map[interface{}]*tview.TreeNode
 }
 
-func New(board *nonota.Board, filename string) *NonotaUI {
+func New(board *nonota.Board, filename string, refTime time.Time) *NonotaUI {
 
 	rootNode := tview.NewTreeNode("Board").SetSelectable(true).SetReference(board)
 	tree := tview.NewTreeView().SetRoot(rootNode).SetCurrentNode(rootNode)
@@ -72,6 +73,7 @@ func New(board *nonota.Board, filename string) *NonotaUI {
 	ui := &NonotaUI{
 		filename:     filename,
 		board:        board,
+		refTime:      refTime,
 		user:         &nonota.User{},
 		app:          app,
 		rootNode:     rootNode,
@@ -182,7 +184,7 @@ func (ui *NonotaUI) perSecondUpdate() {
 		txt += " ⌚" + workTime.String() + " " + ui.lastWork.Task.Title + "\t"
 	}
 
-	now := time.Now()
+	now := ui.refTime
 	dayTotal := ui.board.TotalTime(nonota.StartOfDay(now), nonota.EndOfDay(now))
 	weekTotal := ui.board.TotalTime(nonota.StartOfWeek(now), nonota.EndOfWeek(now))
 	billTotal := ui.board.TotalTime(nonota.StartOfBilling(now), nonota.EndOfBilling(now))
@@ -275,8 +277,8 @@ func (ui *NonotaUI) updateCurrentNode() {
 }
 
 func (ui *NonotaUI) recreateLists() {
-	startTime := nonota.StartOfBilling(time.Now())
-	endTime := nonota.EndOfBilling(time.Now())
+	startTime := nonota.StartOfBilling(ui.refTime)
+	endTime := nonota.EndOfBilling(ui.refTime)
 
 	children := make([]*tview.TreeNode, len(ui.board.Lists))
 	var selNode *tview.TreeNode
