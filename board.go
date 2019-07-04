@@ -138,6 +138,16 @@ func (b *Board) AppendNewList() {
 	b.Lists = append(b.Lists, newList)
 }
 
+func (b *Board) PrependNewList() {
+	newList := &List{
+		Title: "New List",
+	}
+	newLists := make([]*List, 0, len(b.Lists)+1)
+	newLists = append(newLists, newList)
+	newLists = append(newLists, b.Lists...)
+	b.Lists = newLists
+}
+
 func (b *Board) TotalTime(fromTime, toTime time.Time) time.Duration {
 	var total time.Duration
 	for _, l := range b.Lists {

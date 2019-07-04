@@ -164,6 +164,8 @@ func (ui *NonotaUI) setInputCapture() {
 			switch {
 			case event.Rune() == 'a':
 				ui.board.AppendNewList()
+			case event.Rune() == 'A':
+				ui.board.PrependNewList()
 			default:
 				return event
 			}

@@ -5,6 +5,7 @@ import (
 	"github.com/matheusd/nonota"
 	"os"
 	"regexp"
+	"strings"
 	"time"
 
 	flags "github.com/jessevdk/go-flags"
@@ -51,6 +52,12 @@ func extractSubdomain(s string) string {
 		return ""
 	}
 	return match[0][1]
+}
+
+func quote(s string) string {
+	s = strings.ReplaceAll(s, "\n", "\\n")
+	s = strings.ReplaceAll(s, "\"", "'")
+	return s
 }
 
 func main() {
@@ -104,9 +111,9 @@ func main() {
 		typ := 1
 		domain := opts.Domain
 		subdomain := extractSubdomain(t.Title)
-		descr := t.Title
+		descr := quote(t.Title)
 		if t.Description != "" {
-			descr += "\\n\\n" + t.Description
+			descr += "\\n\\n" + quote(t.Description)
 		}
 		token := ""
 		taskTime := t.TotalTime(start, end)
