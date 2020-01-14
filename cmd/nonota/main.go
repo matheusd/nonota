@@ -11,11 +11,14 @@ import (
 )
 
 type opts struct {
-	Previous bool `long:"previous" description:"See the board for the previous month"`
+	Filename string `short:"f" long:"filename" description:"Filename of the board to use"`
+	Previous bool   `long:"previous" description:"See the board for the previous month"`
 }
 
 func getCmdOpts() *opts {
-	cmdOpts := &opts{}
+	cmdOpts := &opts{
+		Filename: "nonota-board.yml",
+	}
 	parser := flags.NewParser(cmdOpts, flags.Default)
 	_, err := parser.Parse()
 	if err != nil {
@@ -40,14 +43,13 @@ func main() {
 		refTime = nonota.StartOfBilling(nonota.StartOfBilling(refTime).Add(time.Hour * -24))
 	}
 
-	filename := "nonota-board.yml"
-	board, err := nonota.BoardFromFile(filename)
+	board, err := nonota.BoardFromFile(opts.Filename)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	ui := nonotaui.New(board, filename, refTime)
+	ui := nonotaui.New(board, opts.Filename, refTime)
 
 	err = ui.Run()
 	if err != nil {
