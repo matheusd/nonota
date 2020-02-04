@@ -119,9 +119,12 @@ func main() {
 		taskTime := t.TotalTime(start, end)
 		labor := taskTime.Hours()
 		expense := labor * opts.Rate
+		subCtrtr := ""
+		subCtrtrRate := 0
 
-		csvFmt := "%d\t%s\t%s\t%s\t%s\t%.2f\n"
-		fmt.Printf(csvFmt, typ, domain, subdomain, descr, token, labor)
+		csvFmt := "%d\t%s\t%s\t%s\t%s\t%s\t%d\t%.2f\n"
+		fmt.Printf(csvFmt, typ, domain, subdomain, descr, token,
+			subCtrtr, subCtrtrRate, labor)
 		totTime += taskTime
 		totExpense += expense
 	}
