@@ -2,19 +2,22 @@ package main
 
 import (
 	"fmt"
-	"github.com/matheusd/nonota"
 	"os"
 	"regexp"
 	"strings"
 	"time"
 
+	"github.com/matheusd/nonota"
+
 	flags "github.com/jessevdk/go-flags"
 )
 
 type opts struct {
-	Current bool    `long:"current" description:"Generate for the current month"`
-	Rate    float64 `long:"rate" description:"Contractor rate in USD/hour"`
-	Domain  string  `long:"domain" description:"Default domain for expenses"`
+	Filename string  `short:"f" long:"filename" description:"Filename of the board to use"`
+	Date     string  `long:"date" description:"Reference date to generate the billing"`
+	Current  bool    `long:"current" description:"Generate for the current month"`
+	Rate     float64 `long:"rate" description:"Contractor rate in USD/hour"`
+	Domain   string  `long:"domain" description:"Default domain for expenses"`
 }
 
 func getCmdOpts() *opts {
@@ -74,7 +77,14 @@ func main() {
 	}
 
 	ref := time.Now()
-	if !opts.Current {
+	if opts.Date != "" {
+		var err error
+		ref, err = time.Parse("2006-01-02", opts.Date)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	} else if !opts.Current {
 		// Go back a day prior to the start of the current period
 		// to get a date in the previous billing period
 		ref = nonota.StartOfBilling(nonota.StartOfBilling(ref).Add(time.Hour * -24))
@@ -84,6 +94,9 @@ func main() {
 	dtFormat := "2006-01-02 15:04:05"
 
 	filename := "nonota-board.yml"
+	if opts.Filename != "" {
+		filename = opts.Filename
+	}
 	board, err := nonota.BoardFromFile(filename)
 	if err != nil {
 		fmt.Println(err)

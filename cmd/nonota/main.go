@@ -13,6 +13,7 @@ import (
 type opts struct {
 	Filename string `short:"f" long:"filename" description:"Filename of the board to use"`
 	Previous bool   `long:"previous" description:"See the board for the previous month"`
+	Date     string `long:"date" description:"Year and month to generate billing (in the YYYY-MM format)"`
 }
 
 func getCmdOpts() *opts {
@@ -41,6 +42,13 @@ func main() {
 		// Go back a day prior to the start of the current period
 		// to get a date in the previous billing period
 		refTime = nonota.StartOfBilling(nonota.StartOfBilling(refTime).Add(time.Hour * -24))
+	} else if opts.Date != "" {
+		ym, err := time.Parse("2006-01", opts.Date)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		refTime = nonota.StartOfBilling(ym)
 	}
 
 	board, err := nonota.BoardFromFile(opts.Filename)
