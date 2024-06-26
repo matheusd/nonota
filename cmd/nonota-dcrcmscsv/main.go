@@ -18,6 +18,8 @@ type opts struct {
 	Current  bool    `long:"current" description:"Generate for the current month"`
 	Rate     float64 `long:"rate" description:"Contractor rate in USD/hour"`
 	Domain   string  `long:"domain" description:"Default domain for expenses"`
+	Name     string  `long:"name" description:"Name to use on header"`
+	Location string  `long:"location" description:"Location to use on header"`
 }
 
 func getCmdOpts() *opts {
@@ -118,10 +120,19 @@ func main() {
 	var totTime time.Duration
 	var totExpense float64
 
+	// Header for new format.
+	fmt.Printf("Month,%d\n", start.Month())
+	fmt.Printf("Year,%d\n", start.Year())
+	fmt.Printf("Name,%s\n", opts.Name)
+	fmt.Printf("Location,%s\n", opts.Location)
+	fmt.Printf("Rate,%.2f\n", opts.Rate)
+	fmt.Printf("PaymentAddr,\n")
+	fmt.Printf("\n")
+
 	// Collected all relevant tasks. Output csv.
 	for _, t := range tasks {
 		// TODO: Extract domain from task list
-		typ := 1
+		typ := "labor"
 		domain := opts.Domain
 		subdomain := extractSubdomain(t.Title)
 		descr := quote(t.Title)
@@ -132,12 +143,11 @@ func main() {
 		taskTime := t.TotalTime(start, end)
 		labor := taskTime.Hours()
 		expense := labor * opts.Rate
-		subCtrtr := ""
-		subCtrtrRate := 0
 
-		csvFmt := "%d\t%s\t%s\t%s\t%s\t%s\t%d\t%.2f\n"
+		//    type, domain, subdomain, description, proposalURL, labor, expenses, rate, subuid
+		csvFmt := "%s,%s,%s,%s,%s,%.2f,0,0,\n"
 		fmt.Printf(csvFmt, typ, domain, subdomain, descr, token,
-			subCtrtr, subCtrtrRate, labor)
+			labor)
 		totTime += taskTime
 		totExpense += expense
 	}
